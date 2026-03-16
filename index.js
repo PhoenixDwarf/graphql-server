@@ -28,13 +28,10 @@ const people = [
 ];
 
 // Following code describes the schema of the GraphQL API. It defines the types and queries that can be made to the API.
+// The `gql` function is a template literal tag that parses the GraphQL schema language and returns an abstract syntax tree (AST)
+// that can be used by the Apollo Server to understand the structure of the API.
 
 const typeDefs = gql`
-  type Address {
-    street: String!
-    city: String!
-  }
-
   type Person {
     name: String!
     phone: String
@@ -44,9 +41,19 @@ const typeDefs = gql`
     id: ID!
   }
 
+  type Address {
+    street: String!
+    city: String!
+  }
+
+  enum YesNo {
+    YES
+    NO
+  }
+
   type Query {
     peopleCount: Int!
-    allPeople: [Person]!
+    allPeople(phone: YesNo): [Person]!
     findPerson(name: String!): Person
   }
 
@@ -70,7 +77,14 @@ const typeDefs = gql`
 const resolvers = {
   Query: {
     peopleCount: () => people.length,
-    allPeople: () => people,
+    allPeople: (root, args) => {
+      if (!args.phone) return people;
+
+      const byPhone = (person) =>
+        args.phone === "YES" ? person.phone : !person.phone;
+
+      return people.filter(byPhone);
+    },
     findPerson: (root, args) => {
       const { name } = args;
       return people.find((person) => person.name === name);
@@ -136,3 +150,59 @@ const server = new ApolloServer({
 server.listen().then(({ url }) => {
   console.log(`Server ready at ${url}`);
 });
+
+// Query examples:
+
+// query {
+//   peopleCount
+//   allPeople {
+//     name
+//     phone
+//     address {
+//       street
+//       city
+//     }
+//     age
+//     canDrink
+//   }
+// }
+
+// ----------------------------
+
+// query {
+//   allPeople {
+//     name
+//     id
+//     phone
+//     age
+//     canDrink
+//   }
+
+//   findPerson(name: "Zed") {
+//     name
+//     canDrink
+//   }
+// }
+
+// ----------------------------
+
+// mutation Mutation {
+//   addPerson(name: "Edwin", street: "Calle 70", city: "Bogotá", age: 28) {
+//     id
+//     address {
+//       city
+//       street
+//     }
+//   }
+// }
+
+// ----------------------------
+
+// query AllPeople {
+//   allPeople(phone: NO) {
+//     name
+//     phone
+//   }
+// }
+
+// ----------------------------
