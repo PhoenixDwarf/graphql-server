@@ -1,4 +1,5 @@
 import { ApolloServer, gql } from "apollo-server";
+import { v1 as uuid } from "uuid";
 
 const people = [
   {
@@ -48,6 +49,18 @@ const typeDefs = gql`
     allPeople: [Person]!
     findPerson(name: String!): Person
   }
+
+  # The 'Mutation' type defines the operations that can modify the data. In this case, we have a mutation for adding a new person to the list.
+
+  type Mutation {
+    addPerson(
+      name: String!
+      phone: String
+      street: String!
+      city: String!
+      age: Int!
+    ): Person
+  }
 `;
 
 // Resolvers define how to fetch the data for each type and query defined in the schema.
@@ -61,6 +74,15 @@ const resolvers = {
     findPerson: (root, args) => {
       const { name } = args;
       return people.find((person) => person.name === name);
+    },
+  },
+
+  Mutation: {
+    addPerson: (root, args) => {
+      // const { name, phone, street, city, age } = args;
+      const person = { ...args, id: uuid() };
+      people.push(person); // In a real application, you would typically save the new person to a database instead of pushing it to an array.
+      return person;
     },
   },
 

@@ -12,6 +12,7 @@
   "type": "module",
   "dependencies": {
     "apollo-server": "^3.13.0",
-    "graphql": "^16.13.1"
+    "graphql": "^16.13.1",
+    "uuid": "^13.0.0"
   }
 }
