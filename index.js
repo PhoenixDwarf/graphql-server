@@ -1,4 +1,4 @@
-import { ApolloServer, gql } from "apollo-server";
+import { ApolloServer, gql, UserInputError } from "apollo-server";
 import { v1 as uuid } from "uuid";
 
 const people = [
@@ -79,6 +79,20 @@ const resolvers = {
 
   Mutation: {
     addPerson: (root, args) => {
+      // Before adding a new person, we check if a person with the same name already exists in the `people` array. (Just for demonstration purposes, in a real application you would typically check for uniqueness based on a unique identifier rather than the name, as multiple people can have the same name.)
+      // If it does, we throw a `UserInputError` to indicate that the input is invalid.
+      // Built-in error codes can be found here: https://www.apollographql.com/docs/apollo-server/data/errors#built-in-error-codes
+
+      // VALIDATION
+
+      if (people.find((person) => person.name === args.name)) {
+        throw new UserInputError("Person with this name already exists", {
+          invalidArgs: args.name,
+        });
+      }
+
+      // If the input is valid, we create a new person object with the provided arguments and a unique ID generated using the `uuid` function.
+
       // const { name, phone, street, city, age } = args;
       const person = { ...args, id: uuid() };
       people.push(person); // In a real application, you would typically save the new person to a database instead of pushing it to an array.
