@@ -29,13 +29,15 @@ const people = [
 // Following code describes the schema of the GraphQL API. It defines the types and queries that can be made to the API.
 
 const typeDefs = gql`
+  type Address {
+    street: String!
+    city: String!
+  }
+
   type Person {
     name: String!
     phone: String
-    street: String!
-    city: String!
-    address: String!
-    check: String!
+    address: Address!
     age: Int!
     canDrink: Boolean!
     id: ID!
@@ -78,9 +80,10 @@ const resolvers = {
     // We can also define custom resolvers for fields that are not directly present in the data.
     // For example, we could define an `address` field that combines the `street` and `city` fields.
 
-    address: (root) => `${root.street}, ${root.city}`,
+    // address: (root) => `${root.street}, ${root.city}`,
+
+    address: (root) => ({ street: root.street, city: root.city }),
     canDrink: (root) => root.age >= 18, // If this calculation is required in  many places, it is better to define it as a field in the schema and resolver, rather than calculating it in each resolver that needs it.
-    check: () => "This is a check field",
   },
 };
 
