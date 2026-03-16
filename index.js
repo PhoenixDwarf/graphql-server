@@ -66,15 +66,18 @@ const resolvers = {
   // It is not strictly necessary in this case, as the default resolver (created by Apollo Server) would work for these fields, but it is included here for demonstration purposes.
 
   Person: {
+    // The default resolver for a field simply looks for a property with the same name on the parent object (in this case, the `Person` object) and returns its value.
+    // For example, the default resolver for the `name` field would look for a `name` property on the `Person` object and return its value.
+
     // name: (root) => 'Jose', ---> We could override the default resolver for the `name` field. In this case it would always return 'Jose' regardless of the actual name in the data.
-    name: (root) => root.name,
-    phone: (root) => root.phone,
-    street: (root) => root.street,
-    city: (root) => root.city,
-    id: (root) => root.id,
+    // phone: (root) => root.phone,
+    // street: (root) => root.street,
+    // city: (root) => root.city,
+    // id: (root) => root.id,
 
     // We can also define custom resolvers for fields that are not directly present in the data.
     // For example, we could define an `address` field that combines the `street` and `city` fields.
+
     address: (root) => `${root.street}, ${root.city}`,
     canDrink: (root) => root.age >= 18, // If this calculation is required in  many places, it is better to define it as a field in the schema and resolver, rather than calculating it in each resolver that needs it.
     check: () => "This is a check field",
