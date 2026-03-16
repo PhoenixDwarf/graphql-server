@@ -67,6 +67,8 @@ const typeDefs = gql`
       city: String!
       age: Int!
     ): Person
+
+    editNumber(name: String!, phone: String!): Person
   }
 `;
 
@@ -111,6 +113,20 @@ const resolvers = {
       const person = { ...args, id: uuid() };
       people.push(person); // In a real application, you would typically save the new person to a database instead of pushing it to an array.
       return person;
+    },
+
+    // The `editNumber` mutation allows us to update the phone number of an existing person.
+    // It takes the person's name and the new phone number as arguments, finds the person in the `people` array,
+    // and updates their phone number if they exist. If the person is not found, it returns null.
+
+    editNumber: (root, args) => {
+      const personIndex = people.findIndex(
+        (person) => person.name === args.name,
+      );
+      if (personIndex === -1) return null;
+
+      people[personIndex].phone = args.phone;
+      return people[personIndex];
     },
   },
 
@@ -206,3 +222,17 @@ server.listen().then(({ url }) => {
 // }
 
 // ----------------------------
+
+// mutation {
+//   editNumber(name: "Zed", phone: "3183904738") {
+//     name
+//     phone
+//   }
+// }
+
+// query AllPeople {
+//   allPeople {
+//     name
+//     phone
+//   }
+// }
